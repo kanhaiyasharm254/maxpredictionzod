@@ -1,46 +1,45 @@
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import asyncio
 
-# 👇 Your prediction pattern
-prediction_pattern = ['🟢 GREEN', '🔴 RED', '🟡 VIOLET']
+# 📄 Logging Setup
+logging.basicConfig(
+    filename='logs/bot.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# 🔁 Your Prediction Pattern
+prediction_pattern = ['🟢 GREEN', '🔴 RED', '🟣 VIOLET']
 current_index = 0
 
-# Token from @BotFather
-BOT_TOKEN = '7467409659:AAECM2gp_2LQfgDYVO9fh5NKCJkucUBXAzk'
+# 🤖 Your Bot Token
+BOT_TOKEN = "7467409659:AAECM2gp_2LQfgDYVO9fh5NKCJkucUBXAzk"
 
-# Welcome Command
+# 👋 Start Command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 Welcome to Max Prediction ZOD Bot!\nNext prediction: Use /predict\nTringa 91 Club | DM Win | Abhi App")
+    await update.message.reply_text("👋 Welcome to MaxPredictionZod!")
+    logging.info(f"/start used by {update.effective_user.id}")
 
-# Predict Command
+# 🎯 Predict Command
 async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global current_index
     prediction = prediction_pattern[current_index]
     current_index = (current_index + 1) % len(prediction_pattern)
-    await update.message.reply_text(f"📊 Prediction: {prediction}")
 
-# Auto-predict every 1 min
-async def auto_predict(context: ContextTypes.DEFAULT_TYPE):
-    global current_index
-    prediction = prediction_pattern[current_index]
-    current_index = (current_index + 1) % len(prediction_pattern)
-    chat_id = context.job.chat_id
-    await context.bot.send_message(chat_id=chat_id, text=f"🔄 Auto Prediction: {prediction}")
+    await update.message.reply_text(f"🧠 Prediction: {prediction}")
+    logging.info(f"Prediction sent to user {update.effective_user.id}: {prediction}")
 
-async def auto(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Auto predictions started every 60 seconds.")
-    context.job_queue.run_repeating(auto_predict, interval=60, first=0, chat_id=update.effective_chat.id)
+# 🛠️ Main App Runner
+async def main():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.job_queue.stop()
-    await update.message.reply_text("⛔ Auto predictions stopped.")
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("predict", predict))
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
+    logging.info("Bot started.")
+    await app.run_polling()
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("predict", predict))
-app.add_handler(CommandHandler("auto", auto))
-app.add_handler(CommandHandler("stop", stop))
-
-app.run_polling()
+if __name__ == "__main__":
+    asyncio.run(main())
