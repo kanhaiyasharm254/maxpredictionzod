@@ -1,3 +1,4 @@
+import os
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -15,7 +16,7 @@ prediction_pattern = ['🟢 GREEN', '🔴 RED', '🟣 VIOLET']
 current_index = 0
 
 # 🤖 Your Bot Token
-BOT_TOKEN = "7467409659:AAECM2gp_2LQfgDYVO9fh5NKCJkucUBXAzk"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # 👋 Start Command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
